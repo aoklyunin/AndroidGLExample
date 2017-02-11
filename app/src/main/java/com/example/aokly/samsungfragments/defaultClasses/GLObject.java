@@ -50,7 +50,7 @@ public class GLObject {
         mPoints = ByteBuffer.allocateDirect(this.pointData.length * mBytesPerFloat)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
         mPoints.put(this.pointData).position(0);
-        Log.e("CONSTRUCTOR",Arrays.toString(pointData));
+        //Log.e("CONSTRUCTOR",Arrays.toString(pointData));
     }
 
     public GLObject(float[] pointData,int mode ){

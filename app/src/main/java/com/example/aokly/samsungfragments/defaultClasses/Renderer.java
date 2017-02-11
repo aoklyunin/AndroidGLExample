@@ -11,6 +11,17 @@ import android.opengl.Matrix;
 // надо обрабатывать корректно поворот планшета
 abstract public class Renderer implements GLSurfaceView.Renderer {
 
+    protected float orientationX;
+    protected float orientationY;
+
+    public void setOrientationY(float orientationY) {
+        this.orientationY = orientationY;
+    }
+
+    public void setOrientationX(float orientationX) {
+        this.orientationX = orientationX;
+    }
+
     public abstract void init();
 
     GLObject triangle, triangle2;
@@ -163,6 +174,7 @@ abstract public class Renderer implements GLSurfaceView.Renderer {
         final float near = 1.0f;
         final float far = 10.0f;
         Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
+        
     }
 
 }

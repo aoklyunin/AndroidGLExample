@@ -2,6 +2,7 @@ package com.example.aokly.samsungfragments;
 
 import android.opengl.GLES20;
 import android.os.SystemClock;
+import android.util.Log;
 
 import com.example.aokly.samsungfragments.defaultClasses.GLObject;
 import com.example.aokly.samsungfragments.defaultClasses.Renderer;
@@ -11,69 +12,62 @@ import com.example.aokly.samsungfragments.simpleData.Vector3;
 
 import java.util.ArrayList;
 
-/**
- * Created by aokly on 11.02.2017.
- */
 public class MyRenderer extends Renderer {
-    GLObject triangle, triangle2, triangle3, triangle4;
+    // положение треугольника
+    Vector3 trianglePos = new Vector3();
+    // угол поворота треугольника
+    float angleInDegrees;
+    // время между отрисовкой кадров
+    float deltaT;
+    // время на предыдущем кадре
+    long prevTime;
 
+    private static float ACC_CONST = 2.0f;
+    // объект треугольника
+    GLObject triangle;
+
+    // инициализация
     public void init() {
+        // треугольник
         ArrayList<Vector3> triangleLst = new ArrayList<>();
-        triangleLst.add(new Vector3(-0.5f, -0.25f, 0.0f));
-        triangleLst.add(new Vector3(0.5f, -0.25f, 0.0f));
-        triangleLst.add(new Vector3(0.0f, 0.559016994f, 0.0f));
-
-        triangle = new GLObject(triangleLst, new Color4(1.0f, 0.0f, 0.0f, 1.0f), GLES20.GL_TRIANGLES);
-
-        ArrayList<PointData> triangleLst2 = new ArrayList<>();
-        triangleLst2.add(new PointData(new Vector3(-0.5f, -0.8f, 0.0f), new Color4(1.0f, 0.0f, 0.0f, 1.0f)));
-        triangleLst2.add(new PointData(new Vector3(0.5f, -0.8f, 0.0f), new Color4(0.0f, 0.0f, 1.0f, 1.0f)));
-        triangleLst2.add(new PointData(new Vector3(0.0f, 0.6f, 0.0f), new Color4(0.0f, 1.0f, 0.0f, 1.0f)));
-
-        triangle2 = new GLObject(triangleLst2, GLES20.GL_TRIANGLES);
-
-        triangle3 = new GLObject(new float[]{
-                // X, Y, Z,
-                // R, G, B, A
-                -0.5f, -0.25f, 0.0f,
-                1.0f, 0.0f, 0.0f, 1.0f,
-
-                0.5f, -0.25f, 0.0f,
-                1.0f, 0.0f, 0.0f, 1.0f,
-
-                0.0f, 0.559016994f, 0.0f,
-                1.0f, 0.0f, 0.0f, 1.0f}
-                , GLES20.GL_TRIANGLES);
-
-        triangle4 = new GLObject(new float[]{
-                -0.5f, -0.8f, 0.0f,
-                1.0f, 0.0f, 0.0f, 1.0f,
-
-                0.5f, -0.8f, 0.0f,
-                0.0f, 0.0f, 1.0f, 1.0f,
-
-                0.0f, 0.6f, 0.0f,
-                0.0f, 1.0f, 0.0f, 1.0f
-        }, GLES20.GL_TRIANGLES);
+        triangleLst.add(new Vector3(-0.5f, -0.8f, 0.0f));
+        triangleLst.add(new Vector3(0.5f, -0.8f, 0.0f));
+        triangleLst.add(new Vector3(0.0f, 0.4f, 0.0f));
+        triangle = new GLObject(triangleLst,new Color4(1.0f, 0.0f, 0.0f, 1.0f), GLES20.GL_TRIANGLES);
     }
-
+    // обработка вызова
     public void process() {
-        /* первая фигура */
-        // по полученному времени
+        // получаем текущее время
         long time = SystemClock.uptimeMillis() % 10000L;
-        // генерируем угол в градусах
-        float angleInDegrees = (360.0f / 10000.0f) * ((int) time);
-        // Draw the triangle facing straight on.
-        triangle.identMatrix();
-        triangle.translate(new Vector3(-1, -1, 0));
-        triangle.rotate(angleInDegrees * 2, new Vector3(0, 0, 1));
-        triangle2.identMatrix();
-        triangle2.translate(new Vector3(1, 1, 0));
-        triangle2.rotate(angleInDegrees, new Vector3(0, 0, 1));
-    }
+        // получаем разницу во времени между кадрами
+        deltaT = (float) (prevTime - time) / 1000;
+        // запоминаем новое время
+        prevTime = time;
+        // считаем угол поворота в градусаъ
+        angleInDegrees = (360.0f / 10000.0f) * ((int) time);
 
+        // находим ускорение
+        Vector3 triangleSpeed = new Vector3();
+        // если наклон больше 0.1
+        if (Math.abs(orientationX) > 0.1)
+            triangleSpeed.setX(orientationX * ACC_CONST);
+        // если наклон больше 0.1
+        if (Math.abs(orientationY) > 0.1)
+            triangleSpeed.setY(orientationY * ACC_CONST);
+
+        // считаем положение треугольника
+        trianglePos = trianglePos.sum(triangleSpeed.mul(deltaT));
+        Log.e("TRIANGLE_POS",trianglePos+"");
+    }
+    // рисование сцены
     public void draw() {
+        // обнуляем матрицу треугольника
+        triangle.identMatrix();
+        // смещаем треугольник
+        triangle.translate(trianglePos);
+        // поворачиваем треугольник
+        //triangle.rotate(angleInDegrees, new Vector3(0, 0, 1));
+        // рисуем треугольник
         triangle.draw();
-        triangle2.draw();
     }
 }

@@ -16,6 +16,12 @@ import android.util.Log;
  * Created by aokly on 11.02.2017.
  */
 public class GLObject {
+    private static int mMVPMatrixHandle;
+    private static int mPositionHandle;
+    private static int mColorHandle;
+    private static float[]  mProjectionMatrix;
+    private static float[]  mViewMatrix;
+
     private final int mBytesPerFloat = 4;
     // сколько памяти нужно одной вершине
     private final int mStrideBytes = 7 * mBytesPerFloat;
@@ -40,8 +46,9 @@ public class GLObject {
         mPoints.put(this.pointData).position(0);
     }
 
-    void draw(int mMVPMatrixHandle, int mPositionHandle,int mColorHandle,
-              float[] mViewMatrix ,float[] mProjectionMatrix,float[] mMVPMatrix){
+    private float[] mMVPMatrix = new float[16];
+
+    void draw(){
         mPoints.position(mPositionOffset);
         GLES20.glVertexAttribPointer(mPositionHandle, mPositionDataSize, GLES20.GL_FLOAT, false,
                 mStrideBytes, mPoints);
@@ -70,6 +77,16 @@ public class GLObject {
         Matrix.rotateM(mModelMatrix, 0, angleInDegrees, axis.getX(), axis.getY(), axis.getZ());
     }
     void translate(Vector3 v){
-        Matrix.translateM(mModelMatrix, 0, v.getX(),v.getY(), v.getZ());
+        Matrix.translateM(mModelMatrix, 0, v.getX(), v.getY(), v.getZ());
+    }
+
+    static void setDrawMatrices(int mMVPMatrixHandle, int mPositionHandle,int mColorHandle,
+                                float [] mProjectionMatrix, float [] mViewMatrix){
+        GLObject.mMVPMatrixHandle = mMVPMatrixHandle;
+        GLObject.mPositionHandle = mPositionHandle;
+        GLObject.mColorHandle = mColorHandle;
+        GLObject.mProjectionMatrix = mProjectionMatrix;
+        GLObject.mViewMatrix = mViewMatrix;
+
     }
 }

@@ -45,7 +45,6 @@ public class MainActivity extends Activity {
         }
 
         ((LinearLayout)findViewById(R.id.glView)).addView(mGLSurfaceView);
-        renderer.setWidth(findViewById(R.id.glView).getWidth());
 
         LinearLayout ll = (LinearLayout)findViewById(R.id.linearLayout);
         ViewGroup.LayoutParams params = ll.getLayoutParams();

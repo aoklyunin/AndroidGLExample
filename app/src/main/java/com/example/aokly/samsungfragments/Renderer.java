@@ -8,8 +8,10 @@ import android.opengl.Matrix;
 import android.os.SystemClock;
 import android.util.Log;
 
+
+// TODO:
+// надо обрабатывать корректно поворот планшета
 public class Renderer implements GLSurfaceView.Renderer {
-     int width=0;
     GLObject triangle, triangle2;
     public Renderer() {
 
@@ -39,8 +41,8 @@ public class Renderer implements GLSurfaceView.Renderer {
     }
 
     private void draw() {
-        triangle.draw(mMVPMatrixHandle,mPositionHandle,mColorHandle,mViewMatrix,mProjectionMatrix,mMVPMatrix);
-        triangle2.draw(mMVPMatrixHandle,mPositionHandle,mColorHandle,mViewMatrix,mProjectionMatrix,mMVPMatrix);
+        triangle.draw();
+        triangle2.draw();
     }
 
     private void modyfy() {
@@ -173,38 +175,21 @@ public class Renderer implements GLSurfaceView.Renderer {
         if (programHandle == 0)
             throw new RuntimeException("Error creating program.");
         // Set program handles. These will later be used to pass in values to the program.
-        mMVPMatrixHandle = GLES20.glGetUniformLocation(programHandle, "u_MVPMatrix");
-        mPositionHandle = GLES20.glGetAttribLocation(programHandle, "a_Position");
-        mColorHandle = GLES20.glGetAttribLocation(programHandle, "a_Color");
+        int mMVPMatrixHandle = GLES20.glGetUniformLocation(programHandle, "u_MVPMatrix");
+        int mPositionHandle = GLES20.glGetAttribLocation(programHandle, "a_Position");
+        int mColorHandle = GLES20.glGetAttribLocation(programHandle, "a_Color");
         // Tell OpenGL to use this program when rendering.
         GLES20.glUseProgram(programHandle);
+        GLObject.setDrawMatrices(mMVPMatrixHandle,mPositionHandle,mColorHandle,mProjectionMatrix,mViewMatrix);
+
     }
-
-
     private float[] mViewMatrix = new float[16];
     private float[] mProjectionMatrix = new float[16];
-    private float[] mMVPMatrix = new float[16];
-    private int mMVPMatrixHandle;
-    private int mPositionHandle;
-    private int mColorHandle;
-
-    private final int mBytesPerFloat = 4;
-    // сколько памяти нужно одной вершине
-    private final int mStrideBytes = 7 * mBytesPerFloat;
-    // какой переменной в массиве идёт первая координата
-    private final int mPositionOffset = 0;
-    // сколько всего координат
-    private final int mPositionDataSize = 3;
-    // какой переменной в массиве идёт первый цвет
-    private final int mColorOffset = 3;
-    // сколько компонент цвета
-    private final int mColorDataSize = 4;
 
     // если поверхность была изменена
     @Override
     public void onSurfaceChanged(GL10 glUnused, int width, int height) {
         // Устанавливаем OpenGL окно просмотра того же размера что и поверхность экрана.
-        Log.e("WIDTHS",width+" "+this.width);
         GLES20.glViewport(0, 0, width, height);
         // Создаем новую матрицу проекции. Высота остается та же,
         // а ширина будет изменяться в соответствии с соотношением сторон.
@@ -218,7 +203,4 @@ public class Renderer implements GLSurfaceView.Renderer {
         Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
     }
 
-    public void setWidth(int width) {
-        this.width = width;
-    }
 }

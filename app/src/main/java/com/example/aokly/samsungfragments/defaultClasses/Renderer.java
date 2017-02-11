@@ -1,71 +1,33 @@
-package com.example.aokly.samsungfragments;
+package com.example.aokly.samsungfragments.defaultClasses;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
-import android.os.SystemClock;
-import android.util.Log;
 
 
 // TODO:
 // надо обрабатывать корректно поворот планшета
-public class Renderer implements GLSurfaceView.Renderer {
+abstract public class Renderer implements GLSurfaceView.Renderer {
+
+    public abstract void init();
+
     GLObject triangle, triangle2;
     public Renderer() {
-
-        triangle = new GLObject(new  float[]{
-                // X, Y, Z,
-                // R, G, B, A
-                -0.5f, -0.25f, 0.0f,
-                1.0f, 0.0f, 0.0f, 1.0f,
-
-                0.5f, -0.25f, 0.0f,
-                1.0f, 0.0f, 0.0f, 1.0f,
-
-                0.0f, 0.559016994f, 0.0f,
-                1.0f, 0.0f, 0.0f, 1.0f}
-        );
-
-        triangle2 = new GLObject(new  float[]{
-                -0.5f, -0.8f, 0.0f,
-                1.0f, 0.0f, 0.0f, 1.0f,
-
-                0.5f, -0.8f, 0.0f,
-                0.0f, 0.0f, 1.0f, 1.0f,
-
-                0.0f, 0.6f, 0.0f,
-             0.0f, 1.0f, 0.0f, 1.0f
-        });
+        init();
     }
 
-    private void draw() {
-        triangle.draw();
-        triangle2.draw();
-    }
+    abstract public void draw();
+    abstract public void process();
 
-    private void modyfy() {
-        /* первая фигура */
-        // по полученному времени
-        long time = SystemClock.uptimeMillis() % 10000L;
-        // генерируем угол в градусах
-        float angleInDegrees = (360.0f / 10000.0f) * ((int) time);
-        // Draw the triangle facing straight on.
-        triangle.identMatrix();
-        triangle.translate(new Vector3(-1,-1,0));
-        triangle.rotate(angleInDegrees*2,new Vector3(0,0,1));
-        triangle2.identMatrix();
-        triangle2.translate(new Vector3(1,1,0));
-        triangle2.rotate(angleInDegrees,new Vector3(0,0,1));
-    }
 
     @Override
     public void onDrawFrame(GL10 glUnused) {
         // очищаем экран
         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
         // меняем положения и углы
-        modyfy();
+        process();
         // рисуем
         draw();
     }

@@ -1,15 +1,18 @@
-package com.example.aokly.samsungfragments;
+package com.example.aokly.samsungfragments.defaultClasses;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.opengles.GL10;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import android.opengl.GLES20;
-import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
-import android.os.SystemClock;
 import android.util.Log;
+
+import com.example.aokly.samsungfragments.simpleData.Color4;
+import com.example.aokly.samsungfragments.simpleData.PointData;
+import com.example.aokly.samsungfragments.simpleData.Vector3;
 
 
 /**
@@ -21,6 +24,8 @@ public class GLObject {
     private static int mColorHandle;
     private static float[]  mProjectionMatrix;
     private static float[]  mViewMatrix;
+
+    int mode;
 
     private final int mBytesPerFloat = 4;
     // сколько памяти нужно одной вершине
@@ -39,16 +44,52 @@ public class GLObject {
     float pointData[];
     private FloatBuffer mPoints;
 
-    public GLObject(float[] pointData) {
-        this.pointData = pointData;
+    void initData(float[] pointData,int mode){
+        this.mode = mode;
+        this.pointData = pointData.clone();
         mPoints = ByteBuffer.allocateDirect(this.pointData.length * mBytesPerFloat)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
         mPoints.put(this.pointData).position(0);
+        Log.e("CONSTRUCTOR",Arrays.toString(pointData));
+    }
+
+    public GLObject(float[] pointData,int mode ){
+        initData(pointData,mode);
+    }
+
+    public GLObject(ArrayList<PointData> arr,int mode){
+        float [] points = new float[arr.size()*7];
+        for (int i = 0; i < arr.size(); i++) {
+            points[i*7]=arr.get(i).getPos().getX();
+            points[i*7+1]=arr.get(i).getPos().getY();
+            points[i*7+2]=arr.get(i).getPos().getZ();
+
+            points[i*7+3]=arr.get(i).getColor().getR();
+            points[i*7+4]=arr.get(i).getColor().getG();
+            points[i*7+5]=arr.get(i).getColor().getB();
+            points[i*7+6]=arr.get(i).getColor().getA();
+        }
+        initData(points,mode);
+    }
+
+    public GLObject(ArrayList<Vector3> arr, Color4 color, int mode){
+        float [] points = new float[arr.size()*7];
+        for (int i = 0; i < arr.size(); i++) {
+            points[i*7]=arr.get(i).getX();
+            points[i*7+1]=arr.get(i).getY();
+            points[i*7+2]=arr.get(i).getZ();
+
+            points[i*7+3]=color.getR();
+            points[i*7+4]=color.getG();
+            points[i*7+5]=color.getB();
+            points[i*7+6]=color.getA();
+        }
+        initData(points,mode);
     }
 
     private float[] mMVPMatrix = new float[16];
 
-    void draw(){
+    public void draw(){
         mPoints.position(mPositionOffset);
         GLES20.glVertexAttribPointer(mPositionHandle, mPositionDataSize, GLES20.GL_FLOAT, false,
                 mStrideBytes, mPoints);
@@ -67,16 +108,16 @@ public class GLObject {
         // (которая теперь содержит модель*вид*проекцию).
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mMVPMatrix, 0);
         GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mMVPMatrix, 0);
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 3);
+        GLES20.glDrawArrays(mode, 0, 3);
     }
 
-    void identMatrix(){
+    public void identMatrix(){
         Matrix.setIdentityM(mModelMatrix, 0);
     }
-    void rotate(float angleInDegrees, Vector3 axis){
+    public void rotate(float angleInDegrees, Vector3 axis){
         Matrix.rotateM(mModelMatrix, 0, angleInDegrees, axis.getX(), axis.getY(), axis.getZ());
     }
-    void translate(Vector3 v){
+    public void translate(Vector3 v){
         Matrix.translateM(mModelMatrix, 0, v.getX(), v.getY(), v.getZ());
     }
 

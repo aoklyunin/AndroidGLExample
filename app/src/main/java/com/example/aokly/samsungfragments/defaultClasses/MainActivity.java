@@ -1,15 +1,16 @@
-package com.example.aokly.samsungfragments;
+package com.example.aokly.samsungfragments.defaultClasses;
 
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
 import android.opengl.GLSurfaceView;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+
+import com.example.aokly.samsungfragments.MyRenderer;
+import com.example.aokly.samsungfragments.R;
 
 
 public class MainActivity extends Activity {
@@ -17,6 +18,8 @@ public class MainActivity extends Activity {
     /** Создаем экземпляр нашего GLSurfaceView */
     private GLSurfaceView mGLSurfaceView;
     private Renderer renderer;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,7 +36,7 @@ public class MainActivity extends Activity {
         {
             // Запрос OpenGL ES 2.0 для установки контекста.
             mGLSurfaceView.setEGLContextClientVersion(2);
-            renderer = new Renderer();
+            renderer = new MyRenderer();
             // Устанавливаем рендеринг, создаем экземпляр класса, он будет описан ниже.
             mGLSurfaceView.setRenderer(renderer);
         }

@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">SamsungFragments</string>
     <string name="startView">Старт</string>
+    <string name="InCenter">В центр</string>
 </resources>

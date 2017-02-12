@@ -19,7 +19,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class MyRenderer extends Renderer {
     // положение треугольника
-    private Vector3 trianglePos = new Vector3();
+    public Vector3 trianglePos = new Vector3();
     // угол поворота треугольника
     private float angleInDegrees;
     // время на предыдущем кадре

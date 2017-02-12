@@ -9,22 +9,26 @@ import com.example.aokly.samsungfragments.defaultClasses.Renderer;
 import com.example.aokly.samsungfragments.simpleData.Color4;
 import com.example.aokly.samsungfragments.simpleData.PointData;
 import com.example.aokly.samsungfragments.simpleData.Vector3;
-
 import java.util.ArrayList;
+
+import javax.microedition.khronos.opengles.GL10;
+
+/*
+    Класс для рисования OpenGL
+ */
 
 public class MyRenderer extends Renderer {
     // положение треугольника
-    Vector3 trianglePos = new Vector3();
+    private Vector3 trianglePos = new Vector3();
     // угол поворота треугольника
-    float angleInDegrees;
-    // время между отрисовкой кадров
-    float deltaT;
+    private float angleInDegrees;
     // время на предыдущем кадре
-    long prevTime;
+    private long prevTime;
 
+    // коэффициент скорости
     private static float ACC_CONST = 2.0f;
     // объект треугольника
-    GLObject triangle;
+    private GLObject triangle;
 
     // инициализация
     public void init() {
@@ -40,7 +44,7 @@ public class MyRenderer extends Renderer {
         // получаем текущее время
         long time = SystemClock.uptimeMillis() % 10000L;
         // получаем разницу во времени между кадрами
-        deltaT = (float) (prevTime - time) / 1000;
+        float deltaT = (float) (prevTime - time) / 1000;
         // запоминаем новое время
         prevTime = time;
         // считаем угол поворота в градусаъ
@@ -64,10 +68,16 @@ public class MyRenderer extends Renderer {
         // обнуляем матрицу треугольника
         triangle.identMatrix();
         // смещаем треугольник
-        //triangle.translate(trianglePos);
+        triangle.translate(trianglePos);
         // поворачиваем треугольник
         //triangle.rotate(angleInDegrees, new Vector3(0, 0, 1));
         // рисуем треугольник
         triangle.draw();
+    }
+
+    @Override
+    public void onSurfaceChanged(GL10 glUnused, int width, int height) {
+        super.onSurfaceChanged(glUnused, width, height);
+        trianglePos = new Vector3();
     }
 }

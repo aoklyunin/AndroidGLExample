@@ -7,43 +7,69 @@ import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.util.Log;
 
+import com.example.aokly.samsungfragments.simpleData.Vector3;
+
 
 // TODO:
 // надо обрабатывать корректно поворот планшета
 abstract public class Renderer implements GLSurfaceView.Renderer {
-
+    // ориентация планшета X
     protected float orientationX;
+    // ориентация планшета Y
     protected float orientationY;
 
+    // матрица вида
+    private float[] mViewMatrix = new float[16];
+    // матрица проекций
+    private float[] mProjectionMatrix = new float[16];
+
+
+    protected int mMVPMatrixHandle ;
+    protected int mPositionHandle ;
+    protected int mColorHandle ;
+    protected int programHandle ;
+
+    // положение камеры
+    protected Vector3 pos;
+    // вектор направления
+    protected Vector3 dir;
+    // вектор вверх
+    protected Vector3 up;
+
+    // задаём ориентацию X
     public void setOrientationY(float orientationY) {
         this.orientationY = orientationY;
     }
-
+    // задаём ориентацию Y
     public void setOrientationX(float orientationX) {
         this.orientationX = orientationX;
     }
 
+    // инициализация
     public abstract void init();
 
-    GLObject triangle, triangle2;
+    // конструктор
     public Renderer() {
+
         init();
     }
 
+    // рисование
     abstract public void draw();
+    // обработка математики
     abstract public void process();
 
-
+    // рисование
     @Override
     public void onDrawFrame(GL10 glUnused) {
         // очищаем экран
         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
+        Matrix.setLookAtM(mViewMatrix, 0, pos.getX(), pos.getY(), pos.getZ(), dir.getX(), dir.getY(), dir.getZ(), up.getX(), up.getY(), up.getZ());
         // меняем положения и углы
         process();
         // рисуем
         draw();
     }
-
 
     // когда создаётся поверхность рисования
     @Override
@@ -53,8 +79,6 @@ abstract public class Renderer implements GLSurfaceView.Renderer {
 
 
     }
-    private float[] mViewMatrix = new float[16];
-    private float[] mProjectionMatrix = new float[16];
 
     // если поверхность была изменена
     @Override
@@ -70,24 +94,17 @@ abstract public class Renderer implements GLSurfaceView.Renderer {
         final float top = 1.0f;
         final float near = 1.0f;
         final float far = 10.0f;
+
         Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
 
-        // Положение глаза, точки наблюдения в пространстве.
-        final float eyeX = 0.0f;
-        final float eyeY = 0.0f;
-        final float eyeZ = 1.5f;
-        // На какое расстояние мы можем видеть вперед. Ограничивающая плоскость обзора.
-        final float lookX = 0.0f;
-        final float lookY = 0.0f;
-        final float lookZ = -5.0f;
-        // Устанавливаем вектор. Положение где наша голова находилась бы если бы мы держали камеру.
-        final float upX = 0.0f;
-        final float upY = 1.0f;
-        final float upZ = 0.0f;
+        pos = new Vector3(0.0f,0.0f,1.5f);
+        dir = new Vector3(0.0f,0.0f,-5.0f);
+        up = new Vector3(0.0f,1.0f,0.0f);
+
         // Устанавливаем матрицу ВИДА. Она описывает положение камеры.
         // Примечание: В OpenGL 1, матрица ModelView используется как комбинация матрицы МОДЕЛИ
         // и матрицы ВИДА. В OpenGL 2, мы можем работать с этими матрицами отдельно по выбору.
-        Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, lookX, lookY, lookZ, upX, upY, upZ);
+        Matrix.setLookAtM(mViewMatrix, 0, pos.getX(), pos.getY(), pos.getZ(), dir.getX(), dir.getY(), dir.getZ(), up.getX(), up.getY(), up.getZ());
         final String vertexShader =
                 "uniform mat4 u_MVPMatrix;      \n"     // Константа отвечающая за комбинацию матриц МОДЕЛЬ/ВИД/ПРОЕКЦИЯ.
 
@@ -99,7 +116,7 @@ abstract public class Renderer implements GLSurfaceView.Renderer {
                         + "void main()                    \n"     // Начало программы вершинного шейдера.
                         + "{                              \n"
                         + "   v_Color = a_Color;          \n"     // Передаем цвет для фрагментного шейдера.
-                        // Он будет интерполирован для всего треугольника.
+                                                                    // Он будет интерполирован для всего треугольника.
                         + "   gl_Position = u_MVPMatrix   \n"     // gl_Position специальные переменные используемые для хранения конечного положения.
                         + "               * a_Position;   \n"     // Умножаем вершины на матрицу для получения конечного положения
                         + "}                              \n";    // в нормированных координатах экрана.
@@ -171,15 +188,13 @@ abstract public class Renderer implements GLSurfaceView.Renderer {
         if (programHandle == 0)
             throw new RuntimeException("Error creating program.");
         // Set program handles. These will later be used to pass in values to the program.
-        int mMVPMatrixHandle = GLES20.glGetUniformLocation(programHandle, "u_MVPMatrix");
-        int mPositionHandle = GLES20.glGetAttribLocation(programHandle, "a_Position");
-        int mColorHandle = GLES20.glGetAttribLocation(programHandle, "a_Color");
+        mMVPMatrixHandle = GLES20.glGetUniformLocation(programHandle, "u_MVPMatrix");
+        mPositionHandle = GLES20.glGetAttribLocation(programHandle, "a_Position");
+        mColorHandle = GLES20.glGetAttribLocation(programHandle, "a_Color");
+
         // Tell OpenGL to use this program when rendering.
         GLES20.glUseProgram(programHandle);
         GLObject.setDrawMatrices(mMVPMatrixHandle,mPositionHandle,mColorHandle,mProjectionMatrix,mViewMatrix);
-        
-        Log.e("ORIENt","WORKS");
-
     }
 
 }

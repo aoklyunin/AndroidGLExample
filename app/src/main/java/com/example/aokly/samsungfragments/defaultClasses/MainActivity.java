@@ -100,6 +100,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         loadNewSensorData(event); // Получаем данные с датчика
         SensorManager.getRotationMatrix(rotationMatrix, null, accelData, magnetData); //Получаем матрицу поворота
         SensorManager.getOrientation(rotationMatrix, OrientationData); //Получаем данные ориентации устройства в пространстве
+
         renderer.setOrientationX(OrientationData[2]);
         renderer.setOrientationY(OrientationData[1]);
     }

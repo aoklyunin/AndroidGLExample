@@ -1,8 +1,5 @@
 package com.example.aokly.samsungfragments.simpleData;
 
-/**
- * Created by teacher on 11.02.17.
- */
 
 public class PointData {
     private Vector3 pos;

@@ -1,8 +1,4 @@
 package com.example.aokly.samsungfragments.simpleData;
-
-/**
- * Created by aokly on 11.02.2017.
- */
 public class Vector3 {
     private float x;
     private float y;

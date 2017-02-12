@@ -5,6 +5,7 @@ import javax.microedition.khronos.opengles.GL10;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.util.Log;
 
 
 // TODO:
@@ -49,6 +50,28 @@ abstract public class Renderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
         // Устанавливаем цвет фона светло серый.
         GLES20.glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
+
+
+    }
+    private float[] mViewMatrix = new float[16];
+    private float[] mProjectionMatrix = new float[16];
+
+    // если поверхность была изменена
+    @Override
+    public void onSurfaceChanged(GL10 glUnused, int width, int height) {
+        // Устанавливаем OpenGL окно просмотра того же размера что и поверхность экрана.
+        GLES20.glViewport(0, 0, width, height);
+        // Создаем новую матрицу проекции. Высота остается та же,
+        // а ширина будет изменяться в соответствии с соотношением сторон.
+        final float ratio = (float) (width) / height;
+        final float left = -ratio;
+        final float right = ratio;
+        final float bottom = -1.0f;
+        final float top = 1.0f;
+        final float near = 1.0f;
+        final float far = 10.0f;
+        Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
+
         // Положение глаза, точки наблюдения в пространстве.
         final float eyeX = 0.0f;
         final float eyeY = 0.0f;
@@ -154,27 +177,9 @@ abstract public class Renderer implements GLSurfaceView.Renderer {
         // Tell OpenGL to use this program when rendering.
         GLES20.glUseProgram(programHandle);
         GLObject.setDrawMatrices(mMVPMatrixHandle,mPositionHandle,mColorHandle,mProjectionMatrix,mViewMatrix);
-
-    }
-    private float[] mViewMatrix = new float[16];
-    private float[] mProjectionMatrix = new float[16];
-
-    // если поверхность была изменена
-    @Override
-    public void onSurfaceChanged(GL10 glUnused, int width, int height) {
-        // Устанавливаем OpenGL окно просмотра того же размера что и поверхность экрана.
-        GLES20.glViewport(0, 0, width, height);
-        // Создаем новую матрицу проекции. Высота остается та же,
-        // а ширина будет изменяться в соответствии с соотношением сторон.
-        final float ratio = (float) (width) / height;
-        final float left = -ratio;
-        final float right = ratio;
-        final float bottom = -1.0f;
-        final float top = 1.0f;
-        final float near = 1.0f;
-        final float far = 10.0f;
-        Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
         
+        Log.e("ORIENt","WORKS");
+
     }
 
 }

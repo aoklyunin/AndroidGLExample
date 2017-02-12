@@ -57,14 +57,14 @@ public class MyRenderer extends Renderer {
 
         // считаем положение треугольника
         trianglePos = trianglePos.sum(triangleSpeed.mul(deltaT));
-        Log.e("TRIANGLE_POS",trianglePos+"");
+        //Log.e("TRIANGLE_POS",trianglePos+"");
     }
     // рисование сцены
     public void draw() {
         // обнуляем матрицу треугольника
         triangle.identMatrix();
         // смещаем треугольник
-        triangle.translate(trianglePos);
+        //triangle.translate(trianglePos);
         // поворачиваем треугольник
         //triangle.rotate(angleInDegrees, new Vector3(0, 0, 1));
         // рисуем треугольник

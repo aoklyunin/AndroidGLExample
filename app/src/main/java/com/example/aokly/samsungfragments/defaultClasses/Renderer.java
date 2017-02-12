@@ -80,6 +80,7 @@ abstract public class Renderer implements GLSurfaceView.Renderer {
 
     }
 
+
     // если поверхность была изменена
     @Override
     public void onSurfaceChanged(GL10 glUnused, int width, int height) {
@@ -105,30 +106,6 @@ abstract public class Renderer implements GLSurfaceView.Renderer {
         // Примечание: В OpenGL 1, матрица ModelView используется как комбинация матрицы МОДЕЛИ
         // и матрицы ВИДА. В OpenGL 2, мы можем работать с этими матрицами отдельно по выбору.
         Matrix.setLookAtM(mViewMatrix, 0, pos.getX(), pos.getY(), pos.getZ(), dir.getX(), dir.getY(), dir.getZ(), up.getX(), up.getY(), up.getZ());
-        final String vertexShader =
-                "uniform mat4 u_MVPMatrix;      \n"     // Константа отвечающая за комбинацию матриц МОДЕЛЬ/ВИД/ПРОЕКЦИЯ.
-
-                        + "attribute vec4 a_Position;     \n"     // Информация о положении вершин.
-                        + "attribute vec4 a_Color;        \n"     // Информация о цвете вершин.
-
-                        + "varying vec4 v_Color;          \n"     // Это будет передано в фрагментный шейдер.
-
-                        + "void main()                    \n"     // Начало программы вершинного шейдера.
-                        + "{                              \n"
-                        + "   v_Color = a_Color;          \n"     // Передаем цвет для фрагментного шейдера.
-                                                                    // Он будет интерполирован для всего треугольника.
-                        + "   gl_Position = u_MVPMatrix   \n"     // gl_Position специальные переменные используемые для хранения конечного положения.
-                        + "               * a_Position;   \n"     // Умножаем вершины на матрицу для получения конечного положения
-                        + "}                              \n";    // в нормированных координатах экрана.
-        final String fragmentShader =
-                "precision mediump float;       \n"     // Устанавливаем по умолчанию среднюю точность для переменных. Максимальная точность
-                        // в фрагментном шейдере не нужна.
-                        + "varying vec4 v_Color;          \n"     // Цвет вершинного шейдера преобразованного
-                        // для фрагмента треугольников.
-                        + "void main()                    \n"     // Точка входа для фрагментного шейдера.
-                        + "{                              \n"
-                        + "   gl_FragColor = v_Color;     \n"     // Передаем значения цветов.
-                        + "}                              \n";
         // Загрузка вершинного шейдера.
         int vertexShaderHandle = GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER);
         if (vertexShaderHandle != 0) {
@@ -196,5 +173,32 @@ abstract public class Renderer implements GLSurfaceView.Renderer {
         GLES20.glUseProgram(programHandle);
         GLObject.setDrawMatrices(mMVPMatrixHandle,mPositionHandle,mColorHandle,mProjectionMatrix,mViewMatrix);
     }
+
+    // шейдер полигонов
+    static  String vertexShader =
+                "uniform mat4 u_MVPMatrix;      \n"     // Константа отвечающая за комбинацию матриц МОДЕЛЬ/ВИД/ПРОЕКЦИЯ.
+
+                        + "attribute vec4 a_Position;     \n"     // Информация о положении вершин.
+                        + "attribute vec4 a_Color;        \n"     // Информация о цвете вершин.
+
+                        + "varying vec4 v_Color;          \n"     // Это будет передано в фрагментный шейдер.
+
+                        + "void main()                    \n"     // Начало программы вершинного шейдера.
+                        + "{                              \n"
+                        + "   v_Color = a_Color;          \n"     // Передаем цвет для фрагментного шейдера.
+                        // Он будет интерполирован для всего треугольника.
+                        + "   gl_Position = u_MVPMatrix   \n"     // gl_Position специальные переменные используемые для хранения конечного положения.
+                        + "               * a_Position;   \n"     // Умножаем вершины на матрицу для получения конечного положения
+                        + "}                              \n";    // в нормированных координатах экрана.
+    // шейдер фрагментов
+    static String fragmentShader =
+                "precision mediump float;       \n"     // Устанавливаем по умолчанию среднюю точность для переменных. Максимальная точность
+                        // в фрагментном шейдере не нужна.
+                        + "varying vec4 v_Color;          \n"     // Цвет вершинного шейдера преобразованного
+                        // для фрагмента треугольников.
+                        + "void main()                    \n"     // Точка входа для фрагментного шейдера.
+                        + "{                              \n"
+                        + "   gl_FragColor = v_Color;     \n"     // Передаем значения цветов.
+                        + "}                              \n";
 
 }
